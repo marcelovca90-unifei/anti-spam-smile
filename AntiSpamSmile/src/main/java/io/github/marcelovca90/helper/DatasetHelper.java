@@ -29,7 +29,7 @@ import smile.data.AttributeDataset;
 import smile.data.NominalAttribute;
 import smile.data.NumericAttribute;
 
-public class DataSetHelper
+public class DatasetHelper
 {
     private static final int SIZE_INT = SizeOf.intSize();
     private static final int SIZE_DOUBLE = SizeOf.doubleSize();
@@ -48,12 +48,12 @@ public class DataSetHelper
 
         // create attributes
         Attribute[] atts = new Attribute[numberOfAttributes];
-        for (int i = 1; i <= numberOfAttributes; i++)
-            atts[i - 1] = new NumericAttribute("x" + i);
+        for (int i = 0; i < numberOfAttributes; i++)
+            atts[i] = new NumericAttribute("x" + i);
         Attribute response = new NominalAttribute("y");
 
         // create data set
-        AttributeDataset dataSet = new AttributeDataset("dataSet", atts, response);
+        AttributeDataset dataset = new AttributeDataset("dataset", atts, response);
 
         // create instance placeholder
         double[] x = new double[numberOfAttributes];
@@ -69,25 +69,25 @@ public class DataSetHelper
                 double[] values = doubleBuffer.array();
                 for (int j = 0; j < numberOfAttributes; j++)
                     x[j] = values[j];
-                dataSet.add(x, classType.ordinal());
+                dataset.add(x, classType.ordinal());
                 doubleBuffer.clear();
             }
         }
         inputStream.close();
 
-        assert dataSet.size() == numberOfInstances;
-        assert dataSet.get(0).x.length == numberOfAttributes;
+        assert dataset.size() == numberOfInstances;
+        assert dataset.get(0).x.length == numberOfAttributes;
 
-        return dataSet;
+        return dataset;
     }
 
-    public static AttributeDataset mergeDataSets(AttributeDataset... dataSets)
+    public static AttributeDataset mergeDataSets(AttributeDataset... datasets)
     {
         AtomicInteger totalLength = new AtomicInteger(0);
-        AttributeDataset mergedSet = new AttributeDataset("mergedDataSet", dataSets[0].attributes(), dataSets[0].response());
-        Arrays.stream(dataSets).forEach(dataSet -> {
-            totalLength.set(totalLength.get() + dataSet.size());
-            dataSet.forEach(mergedSet::add);
+        AttributeDataset mergedSet = new AttributeDataset("mergedDataSet", datasets[0].attributes(), datasets[0].response());
+        Arrays.stream(datasets).forEach(dataset -> {
+            totalLength.set(totalLength.get() + dataset.size());
+            dataset.forEach(mergedSet::add);
         });
 
         assert mergedSet.size() == totalLength.get();
@@ -95,17 +95,17 @@ public class DataSetHelper
         return mergedSet;
     }
 
-    public static AttributeDataset shuffle(AttributeDataset dataSet, int seed)
+    public static AttributeDataset shuffle(AttributeDataset dataset, int seed)
     {
-        double[][] x = dataSet.toArray(new double[dataSet.size()][]);
-        int[] y = dataSet.toArray(new int[dataSet.size()]);
+        double[][] x = dataset.toArray(new double[dataset.size()][]);
+        int[] y = dataset.toArray(new int[dataset.size()]);
 
         Random random = new Random(seed);
-        AttributeDataset shuffledDataSet = new AttributeDataset("shuffledDataSet", dataSet.attributes(), dataSet.response());
+        AttributeDataset shuffledDataSet = new AttributeDataset("shuffledDataSet", dataset.attributes(), dataset.response());
 
-        for (int i = 0; i < dataSet.size(); i++)
+        for (int i = 0; i < dataset.size(); i++)
         {
-            int j = random.nextInt(dataSet.size());
+            int j = random.nextInt(dataset.size());
 
             double[] tempX = x[i];
             x[i] = x[j];
@@ -118,22 +118,22 @@ public class DataSetHelper
             shuffledDataSet.add(x[i], y[i]);
         }
 
-        assert shuffledDataSet.size() == dataSet.size();
+        assert shuffledDataSet.size() == dataset.size();
 
         return shuffledDataSet;
     }
 
-    public static Pair<AttributeDataset, AttributeDataset> split(AttributeDataset dataSet, double splitPercent)
+    public static Pair<AttributeDataset, AttributeDataset> split(AttributeDataset dataset, double splitPercent)
     {
-        AttributeDataset trainSet = new AttributeDataset("trainSet", dataSet.attributes(), dataSet.response());
-        for (int i = 0; i < (int) (splitPercent * dataSet.size()); i++)
-            trainSet.add(dataSet.get(i));
+        AttributeDataset trainSet = new AttributeDataset("trainSet", dataset.attributes(), dataset.response());
+        for (int i = 0; i < (int) (splitPercent * dataset.size()); i++)
+            trainSet.add(dataset.get(i));
 
-        AttributeDataset testSet = new AttributeDataset("testSet", dataSet.attributes(), dataSet.response());
-        for (int i = (int) (splitPercent * dataSet.size()); i < dataSet.size(); i++)
-            testSet.add(dataSet.get(i));
+        AttributeDataset testSet = new AttributeDataset("testSet", dataset.attributes(), dataset.response());
+        for (int i = (int) (splitPercent * dataset.size()); i < dataset.size(); i++)
+            testSet.add(dataset.get(i));
 
-        assert trainSet.size() + testSet.size() == dataSet.size();
+        assert trainSet.size() + testSet.size() == dataset.size();
 
         return Pair.of(trainSet, testSet);
     }
