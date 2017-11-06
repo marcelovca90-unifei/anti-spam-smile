@@ -47,7 +47,8 @@ public class DatasetHelper
     {
         Set<Triple<String, Integer, Integer>> metadata = new LinkedHashSet<>();
 
-        Files.readAllLines(Paths.get(filename)).stream().filter(line -> !StringUtils.isEmpty(line) && !line.startsWith("#")).forEach(line -> {
+        Files.readAllLines(Paths.get(filename)).stream().filter(line -> !StringUtils.isEmpty(line) && !line.startsWith("#")).forEach(line ->
+        {
             // replaces the user home symbol (~) with the actual folder path
             line = line.replace("~", System.getProperty("user.home"));
             String[] parts = line.split(",");
@@ -113,7 +114,8 @@ public class DatasetHelper
     {
         AtomicInteger totalLength = new AtomicInteger(0);
         AttributeDataset mergedSet = new AttributeDataset("mergedDataSet", datasets[0].attributes(), datasets[0].response());
-        Arrays.stream(datasets).forEach(dataset -> {
+        Arrays.stream(datasets).forEach(dataset ->
+        {
             totalLength.set(totalLength.get() + dataset.size());
             dataset.forEach(mergedSet::add);
         });

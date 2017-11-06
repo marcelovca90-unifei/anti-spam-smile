@@ -28,7 +28,7 @@ import smile.validation.FMeasure;
 import smile.validation.Sensitivity;
 import smile.validation.Specificity;
 
-@SuppressWarnings ("rawtypes")
+@SuppressWarnings("rawtypes")
 public class ValidationHelper
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ValidationHelper.class);

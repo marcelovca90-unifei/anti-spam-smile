@@ -12,5 +12,6 @@ package io.github.marcelovca90.common;
 
 public enum ClassType
 {
-    HAM, SPAM
+    HAM,
+    SPAM
 }

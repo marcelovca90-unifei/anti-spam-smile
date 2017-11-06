@@ -38,7 +38,7 @@ import smile.math.kernel.GaussianKernel;
 import smile.math.rbf.RadialBasisFunction;
 import smile.util.SmileUtils;
 
-@SuppressWarnings ("rawtypes")
+@SuppressWarnings("rawtypes")
 public class MethodHelper
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHelper.class);

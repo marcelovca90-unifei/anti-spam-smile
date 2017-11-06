@@ -21,14 +21,12 @@ import smile.data.AttributeDataset;
 public class Main
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
-    private static final String METADATA_PATH = "C:\\Users\\marcelovca90\\git\\anti-spam-weka-data\\2017_BASE2\\metadata.txt";
+    private static final String METADATA_PATH = "/Users/marcelocysneiros/git/anti-spam-weka-data/2017_BASE2/metadataUnifeiV1_fd_mi.txt";
 
-    @SuppressWarnings (
-    { "rawtypes", "unchecked" })
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static void main(String[] args) throws Exception
     {
-        Class<? extends Classifier>[] clazzes = new Class[]
-        {
+        Class<? extends Classifier>[] clazzes = new Class[] {
                 DecisionTree.class, RandomForest.class
         };
 
