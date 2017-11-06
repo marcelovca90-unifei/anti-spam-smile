@@ -10,6 +10,7 @@
 // **********************************************************************
 package io.github.marcelovca90.helper;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +37,7 @@ import smile.data.Attribute;
 import smile.data.AttributeDataset;
 import smile.data.NominalAttribute;
 import smile.data.NumericAttribute;
+import smile.data.parser.ArffParser;
 
 public class DatasetHelper
 {
@@ -63,7 +65,26 @@ public class DatasetHelper
         return metadata;
     }
 
-    public static AttributeDataset read(String filename, ClassType classType) throws IOException
+    public static AttributeDataset load(Triple<String, Integer, Integer> metadatum) throws Exception
+    {
+        AttributeDataset dataset;
+        if (Files.exists(Paths.get(metadatum.getLeft() + File.separator + "data.arff")))
+        {
+            int noFeatures = Integer.parseInt(metadatum.getLeft().substring(metadatum.getLeft().lastIndexOf(File.separator) + 1));
+            ArffParser arffParser = new ArffParser();
+            arffParser.setResponseIndex(noFeatures);
+            dataset = arffParser.parse(new FileInputStream(metadatum.getLeft() + File.separator + "data.arff"));
+        }
+        else
+        {
+            AttributeDataset ham = load(metadatum.getLeft() + File.separator + "ham", ClassType.HAM);
+            AttributeDataset spam = load(metadatum.getLeft() + File.separator + "spam", ClassType.SPAM);
+            dataset = DatasetHelper.merge(ham, spam);
+        }
+        return dataset;
+    }
+
+    private static AttributeDataset load(String filename, ClassType classType) throws IOException
     {
         InputStream inputStream = new FileInputStream(filename);
 
@@ -110,7 +131,7 @@ public class DatasetHelper
         return dataset;
     }
 
-    public static AttributeDataset mergeDataSets(AttributeDataset... datasets)
+    private static AttributeDataset merge(AttributeDataset... datasets)
     {
         AtomicInteger totalLength = new AtomicInteger(0);
         AttributeDataset mergedSet = new AttributeDataset("mergedDataSet", datasets[0].attributes(), datasets[0].response());
