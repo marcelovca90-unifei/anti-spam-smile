@@ -9,7 +9,7 @@ import io.github.marcelovca90.helper.FeatureSelectionHelper;
 import io.github.marcelovca90.helper.MethodHelper;
 import io.github.marcelovca90.helper.ValidationHelper;
 import smile.classification.Classifier;
-import smile.classification.SVM;
+import smile.classification.DecisionTree;
 import smile.data.AttributeDataset;
 
 public class Main
@@ -35,11 +35,11 @@ public class Main
             // initialize rng seed
             int seed = 2;
 
+            System.out.println(DecisionTree.class.getName() + " with " + features + " features");
+
             // run 10 executions
             for (int run = 0; run < 10; run++)
             {
-                System.out.print("[" + features + "@" + seed + "]\t");
-
                 // shuffle data
                 dataset = DatasetHelper.shuffle(dataset, seed);
 
@@ -54,12 +54,16 @@ public class Main
 
                 // train and test classifier
                 MethodHelper.init(trainx, trainy);
-                Classifier classifier = MethodHelper.forClass(SVM.class);
-                ValidationHelper.validate(classifier, testx, testy);
+                Classifier classifier = MethodHelper.forClass(DecisionTree.class);
+                ValidationHelper.aggregate(classifier, testx, testy);
 
                 // update rng seed
                 seed = Primes.nextPrime(seed + 1);
             }
+
+            ValidationHelper.consolidate(DecisionTree.class);
+
+            System.out.println();
         }
     }
 }

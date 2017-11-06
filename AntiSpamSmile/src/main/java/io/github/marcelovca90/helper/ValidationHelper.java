@@ -10,34 +10,57 @@
 // **********************************************************************
 package io.github.marcelovca90.helper;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
 import smile.classification.Classifier;
 import smile.validation.Accuracy;
+import smile.validation.ClassificationMeasure;
 import smile.validation.FMeasure;
 import smile.validation.Sensitivity;
 import smile.validation.Specificity;
 
 public class ValidationHelper
 {
-    public static void validate(Classifier<double[]> classifier, double[][] x, int[] y)
+    private static final Map<Class<? extends Classifier>, Map<Class<? extends ClassificationMeasure>, DescriptiveStatistics>> results = new HashMap<>();
+
+    public static void aggregate(Classifier<double[]> classifier, double[][] x, int[] y)
     {
+        results.putIfAbsent(classifier.getClass(), new LinkedHashMap<>());
+
         int[] truth = y;
         int[] prediction = new int[truth.length];
         for (int i = 0; i < x.length; i++)
             prediction[i] = classifier.predict(x[i]);
 
         double accuracy = 100.0 * new Accuracy().measure(truth, prediction);
+        results.get(classifier.getClass()).putIfAbsent(Accuracy.class, new DescriptiveStatistics());
+        results.get(classifier.getClass()).get(Accuracy.class).addValue(accuracy);
+        assert !Double.isNaN(accuracy) : "accuracy must be a double";
+
         double sensitivity = 100.0 * new Sensitivity().measure(truth, prediction);
+        results.get(classifier.getClass()).putIfAbsent(Sensitivity.class, new DescriptiveStatistics());
+        results.get(classifier.getClass()).get(Sensitivity.class).addValue(sensitivity);
+        assert !Double.isNaN(sensitivity) : "sensitivity must be a double";
+
         double specificity = 100.0 * new Specificity().measure(truth, prediction);
+        results.get(classifier.getClass()).putIfAbsent(Specificity.class, new DescriptiveStatistics());
+        results.get(classifier.getClass()).get(Specificity.class).addValue(specificity);
+        assert !Double.isNaN(specificity) : "specificity must be a double";
+
         double fmeasure = 100.0 * new FMeasure().measure(truth, prediction);
+        results.get(classifier.getClass()).putIfAbsent(FMeasure.class, new DescriptiveStatistics());
+        results.get(classifier.getClass()).get(FMeasure.class).addValue(fmeasure);
+        assert !Double.isNaN(fmeasure) : "fmeasure must be a double";
+    }
 
-        assert (!Double.isNaN(accuracy)) : "accuracy must be a double";
-        assert (!Double.isNaN(sensitivity)) : "sensitivity must be a double";
-        assert (!Double.isNaN(specificity)) : "specificity must be a double";
-        assert (!Double.isNaN(fmeasure)) : "fmeasure must be a double";
-
-        System.out.println(String.format("Accuracy: %.2f", accuracy));
-        System.out.println(String.format("Sensitivity: %.2f", sensitivity));
-        System.out.println(String.format("Specificity: %.2f", specificity));
-        System.out.println(String.format("FMeasure: %.2f", fmeasure));
+    public static void consolidate(Class<? extends Classifier> clazz)
+    {
+        System.out.println(results.get(clazz).keySet().stream().map(k -> k.getSimpleName()).collect(Collectors.joining("\t")));
+        System.out.println(results.get(clazz).values().stream().map(v -> String.format("%.2f %.2f", v.getMean(), v.getStandardDeviation())).collect(Collectors.joining("\t")));
     }
 }
