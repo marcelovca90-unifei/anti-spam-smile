@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.arturmkrtchyan.sizeof4j.SizeOf;
 
@@ -37,6 +39,7 @@ import smile.data.NumericAttribute;
 
 public class DatasetHelper
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatasetHelper.class);
     private static final int SIZE_INT = SizeOf.intSize();
     private static final int SIZE_DOUBLE = SizeOf.doubleSize();
 
@@ -44,8 +47,7 @@ public class DatasetHelper
     {
         Set<Triple<String, Integer, Integer>> metadata = new LinkedHashSet<>();
 
-        Files.readAllLines(Paths.get(filename)).stream().filter(line -> !StringUtils.isEmpty(line) && !line.startsWith("#")).forEach(line -> 
-        {
+        Files.readAllLines(Paths.get(filename)).stream().filter(line -> !StringUtils.isEmpty(line) && !line.startsWith("#")).forEach(line -> {
             // replaces the user home symbol (~) with the actual folder path
             line = line.replace("~", System.getProperty("user.home"));
             String[] parts = line.split(",");

@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import smile.classification.AdaBoost;
 import smile.classification.Classifier;
 import smile.classification.DecisionTree;
@@ -36,55 +39,56 @@ import smile.math.kernel.GaussianKernel;
 @SuppressWarnings ("rawtypes")
 public class MethodHelper
 {
-    private static final Map<Class<? extends Classifier>, Callable<?>> methods = new HashMap<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHelper.class);
+    private static final Map<Class<? extends Classifier>, Callable<?>> METHODS = new HashMap<>();
 
     public static void init(double[][] x, int[] y)
     {
         // K-Nearest Neighbor
-        methods.put(KNN.class, () -> new KNN<>(x, y, new EuclideanDistance()));
+        METHODS.put(KNN.class, () -> new KNN<>(x, y, new EuclideanDistance()));
 
         // Linear Discriminant Analysis
-        methods.put(LDA.class, () -> new LDA(x, y));
+        METHODS.put(LDA.class, () -> new LDA(x, y));
 
         // Fisher's Linear Discriminant
-        methods.put(FLD.class, () -> new FLD(x, y));
+        METHODS.put(FLD.class, () -> new FLD(x, y));
 
         // Quadratic Discriminant analysis
-        methods.put(QDA.class, () -> new QDA(x, y));
+        METHODS.put(QDA.class, () -> new QDA(x, y));
 
         // Regularized Discriminant Analysis
-        methods.put(RDA.class, () -> new RDA(x, y, 0.5));
+        METHODS.put(RDA.class, () -> new RDA(x, y, 0.5));
 
         // Logistic Regression
-        methods.put(LogisticRegression.class, () -> new LogisticRegression(x, y));
+        METHODS.put(LogisticRegression.class, () -> new LogisticRegression(x, y));
 
         // Maximum Entropy Classifier
-        methods.put(Maxent.class, null); // TODO implement runnable for constructor
+        METHODS.put(Maxent.class, null); // TODO implement runnable for constructor
 
         // Multilayer Perceptron Neural Network
-        methods.put(NeuralNetwork.class, () -> new NeuralNetwork(ErrorFunction.LEAST_MEAN_SQUARES, x[0].length, x[0].length / 2, 1));
+        METHODS.put(NeuralNetwork.class, () -> new NeuralNetwork(ErrorFunction.LEAST_MEAN_SQUARES, x[0].length, x[0].length / 2, 1));
 
         // Radial Basis Function Networks
-        methods.put(RBFNetwork.class, null); // TODO implement runnable for constructor
+        METHODS.put(RBFNetwork.class, null); // TODO implement runnable for constructor
 
         // Support Vector Machines
-        methods.put(SVM.class, () -> new SVM<>(new GaussianKernel(8.0), 5.0, smile.math.Math.max(y) + 1));
+        METHODS.put(SVM.class, () -> new SVM<>(new GaussianKernel(8.0), 5.0, smile.math.Math.max(y) + 1));
 
         // Decision Trees
-        methods.put(DecisionTree.class, () -> new DecisionTree(x, y, 100));
+        METHODS.put(DecisionTree.class, () -> new DecisionTree(x, y, 100));
 
         // Random Forest
-        methods.put(RandomForest.class, () -> new RandomForest(x, y, 100));
+        METHODS.put(RandomForest.class, () -> new RandomForest(x, y, 100));
 
         // Gradient Boosted Trees
-        methods.put(GradientTreeBoost.class, () -> new GradientTreeBoost(x, y, 100));
+        METHODS.put(GradientTreeBoost.class, () -> new GradientTreeBoost(x, y, 100));
 
         // AdaBoost
-        methods.put(AdaBoost.class, () -> new AdaBoost(x, y, 100));
+        METHODS.put(AdaBoost.class, () -> new AdaBoost(x, y, 100));
     }
 
     public static Classifier forClass(Class<? extends Classifier> clazz) throws Exception
     {
-        return clazz.cast(methods.get(clazz).call());
+        return clazz.cast(METHODS.get(clazz).call());
     }
 }

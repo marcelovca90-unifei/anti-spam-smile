@@ -5,6 +5,8 @@ import java.io.File;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.commons.math3.primes.Primes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.github.marcelovca90.common.ClassType;
 import io.github.marcelovca90.helper.DatasetHelper;
@@ -18,6 +20,7 @@ import smile.data.AttributeDataset;
 
 public class Main
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     private static final String METADATA_PATH = "C:\\Users\\marcelovca90\\git\\anti-spam-weka-data\\2017_BASE2\\metadata.txt";
 
     @SuppressWarnings (
@@ -43,10 +46,10 @@ public class Main
                 dataset = FeatureSelectionHelper.sumSquaresRatio(dataset);
                 int noFeaturesAfter = dataset.attributes().length;
 
-                // initialize rng seed
+                // initialize RNG seed
                 int seed = 2;
 
-                System.out.println(String.format("%s with (%d -> %d) features", clazz.getName(), noFeaturesBefore, noFeaturesAfter));
+                LOGGER.info("{} with ({} -> {}) features", clazz.getName(), noFeaturesBefore, noFeaturesAfter);
 
                 // perform 10 executions
                 for (int run = 0; run < 10; run++)
@@ -68,13 +71,12 @@ public class Main
                     Classifier classifier = MethodHelper.forClass(clazz);
                     ValidationHelper.aggregate(classifier, testx, testy);
 
-                    // update rng seed
+                    // update RNG seed
                     seed = Primes.nextPrime(seed + 1);
                 }
 
+                // print consolidated statistics for this method
                 ValidationHelper.consolidate(clazz);
-
-                System.out.println();
             }
         }
     }

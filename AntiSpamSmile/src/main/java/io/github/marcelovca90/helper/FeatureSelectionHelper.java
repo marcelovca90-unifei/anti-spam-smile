@@ -14,6 +14,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import smile.data.Attribute;
 import smile.data.AttributeDataset;
 import smile.data.NumericAttribute;
@@ -22,6 +25,8 @@ import smile.feature.SumSquaresRatio;
 
 public class FeatureSelectionHelper
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureSelectionHelper.class);
+
     public static AttributeDataset signalNoiseRatio(AttributeDataset dataset)
     {
         double[][] x = dataset.toArray(new double[dataset.size()][]);
