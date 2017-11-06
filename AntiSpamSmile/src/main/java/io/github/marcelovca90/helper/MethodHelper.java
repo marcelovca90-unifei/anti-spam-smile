@@ -65,7 +65,7 @@ public class MethodHelper
         METHODS.put(LogisticRegression.class, () -> new LogisticRegression(x, y));
 
         // Maximum Entropy Classifier
-        METHODS.put(Maxent.class, () -> 
+        METHODS.put(Maxent.class, () ->
         {
             int[][] binx = new int[x.length][x[0].length];
             for (int i = 0; i < x.length; i++)
@@ -75,10 +75,15 @@ public class MethodHelper
         });
 
         // Multilayer Perceptron Neural Network
-        METHODS.put(NeuralNetwork.class, () -> new NeuralNetwork(ErrorFunction.LEAST_MEAN_SQUARES, x[0].length, x[0].length / 2, 1));
+        METHODS.put(NeuralNetwork.class, () ->
+        {
+            int i = x[0].length, o = 1, k = x.length;
+            int h = (int) ((-1 * (i + o)) + Math.sqrt(Math.pow(i + o, 2) + (4 * k)) / 2);
+            return new NeuralNetwork(ErrorFunction.LEAST_MEAN_SQUARES, x[0].length, h, h, 1);
+        });
 
         // Radial Basis Function Networks
-        METHODS.put(RBFNetwork.class, () -> 
+        METHODS.put(RBFNetwork.class, () ->
         {
             double[][] centers = new double[10][];
             RadialBasisFunction[] basis = SmileUtils.learnGaussianRadialBasis(x, centers, 5.0);
