@@ -15,11 +15,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 
 import com.arturmkrtchyan.sizeof4j.SizeOf;
 
@@ -33,6 +39,26 @@ public class DatasetHelper
 {
     private static final int SIZE_INT = SizeOf.intSize();
     private static final int SIZE_DOUBLE = SizeOf.doubleSize();
+
+    public static Set<Triple<String, Integer, Integer>> loadMetadata(String filename) throws IOException
+    {
+        Set<Triple<String, Integer, Integer>> metadata = new LinkedHashSet<>();
+
+        Files.readAllLines(Paths.get(filename)).stream().filter(line -> !StringUtils.isEmpty(line) && !line.startsWith("#")).forEach(line -> 
+        {
+            // replaces the user home symbol (~) with the actual folder path
+            line = line.replace("~", System.getProperty("user.home"));
+            String[] parts = line.split(",");
+            String folder = parts[0];
+            Integer emptyHamAmount = Integer.parseInt(parts[1]);
+            Integer emptySpamAmount = Integer.parseInt(parts[2]);
+
+            // add triple to metadata set
+            metadata.add(Triple.of(folder, emptyHamAmount, emptySpamAmount));
+        });
+
+        return metadata;
+    }
 
     public static AttributeDataset read(String filename, ClassType classType) throws IOException
     {

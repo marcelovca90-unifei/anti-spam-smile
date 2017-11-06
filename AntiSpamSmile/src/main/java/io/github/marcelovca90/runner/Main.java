@@ -1,6 +1,9 @@
 package io.github.marcelovca90.runner;
 
+import java.io.File;
+
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.commons.math3.primes.Primes;
 
 import io.github.marcelovca90.common.ClassType;
@@ -15,6 +18,8 @@ import smile.data.AttributeDataset;
 
 public class Main
 {
+    private static final String METADATA_PATH = "C:\\Users\\marcelovca90\\git\\anti-spam-weka-data\\2017_BASE2\\metadata.txt";
+
     @SuppressWarnings (
     { "rawtypes", "unchecked" })
     public static void main(String[] args) throws Exception
@@ -26,27 +31,24 @@ public class Main
 
         for (Class clazz : clazzes)
         {
-            for (int features = 8; features <= 1024; features *= 2)
+            for (Triple<String, Integer, Integer> metadatum : DatasetHelper.loadMetadata(METADATA_PATH))
             {
-                // TODO: load file names from metadata
-                final String filenameHam = "C:\\Users\\marcelovca90\\git\\anti-spam-weka-data\\2017_BASE2\\2017_BASE2_SPAM_ASSASSIN\\MI\\" + features + "\\ham";
-                final String filenameSpam = "C:\\Users\\marcelovca90\\git\\anti-spam-weka-data\\2017_BASE2\\2017_BASE2_SPAM_ASSASSIN\\MI\\" + features + "\\spam";
-
                 // read data
-                AttributeDataset ham = DatasetHelper.read(filenameHam, ClassType.HAM);
-                AttributeDataset spam = DatasetHelper.read(filenameSpam, ClassType.SPAM);
+                AttributeDataset ham = DatasetHelper.read(metadatum.getLeft() + File.separator + "ham", ClassType.HAM);
+                AttributeDataset spam = DatasetHelper.read(metadatum.getLeft() + File.separator + "spam", ClassType.SPAM);
                 AttributeDataset dataset = DatasetHelper.mergeDataSets(ham, spam);
 
                 // select features
+                int noFeaturesBefore = dataset.attributes().length;
                 dataset = FeatureSelectionHelper.sumSquaresRatio(dataset);
+                int noFeaturesAfter = dataset.attributes().length;
 
                 // initialize rng seed
                 int seed = 2;
 
-                System.out.println(clazz.getName() + " with " + features + " features");
-                Thread.sleep(3000);
+                System.out.println(String.format("%s with (%d -> %d) features", clazz.getName(), noFeaturesBefore, noFeaturesAfter));
 
-                // run 10 executions
+                // perform 10 executions
                 for (int run = 0; run < 10; run++)
                 {
                     // shuffle data
