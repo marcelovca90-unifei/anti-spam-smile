@@ -35,6 +35,8 @@ import smile.classification.RandomForest;
 import smile.classification.SVM;
 import smile.math.distance.EuclideanDistance;
 import smile.math.kernel.GaussianKernel;
+import smile.math.rbf.RadialBasisFunction;
+import smile.util.SmileUtils;
 
 @SuppressWarnings ("rawtypes")
 public class MethodHelper
@@ -63,13 +65,25 @@ public class MethodHelper
         METHODS.put(LogisticRegression.class, () -> new LogisticRegression(x, y));
 
         // Maximum Entropy Classifier
-        METHODS.put(Maxent.class, null); // TODO implement runnable for constructor
+        METHODS.put(Maxent.class, () -> 
+        {
+            int[][] binx = new int[x.length][x[0].length];
+            for (int i = 0; i < x.length; i++)
+                for (int j = 0; j < x[0].length; j++)
+                    binx[i][j] = Math.abs(x[i][j]) < 1E-18 ? 0 : 1;
+            return new Maxent(x[0].length, binx, y);
+        });
 
         // Multilayer Perceptron Neural Network
         METHODS.put(NeuralNetwork.class, () -> new NeuralNetwork(ErrorFunction.LEAST_MEAN_SQUARES, x[0].length, x[0].length / 2, 1));
 
         // Radial Basis Function Networks
-        METHODS.put(RBFNetwork.class, null); // TODO implement runnable for constructor
+        METHODS.put(RBFNetwork.class, () -> 
+        {
+            double[][] centers = new double[10][];
+            RadialBasisFunction[] basis = SmileUtils.learnGaussianRadialBasis(x, centers, 5.0);
+            return new RBFNetwork<>(x, y, new EuclideanDistance(), basis, centers);
+        });
 
         // Support Vector Machines
         METHODS.put(SVM.class, () -> new SVM<>(new GaussianKernel(8.0), 5.0, smile.math.Math.max(y) + 1));
