@@ -1,4 +1,4 @@
-package io.github.marcelovca90;
+package io.github.marcelovca90.runner;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -8,6 +8,8 @@ import javax.swing.JPanel;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import io.github.marcelovca90.common.ClassType;
+import io.github.marcelovca90.helper.DataSetHelper;
 import smile.classification.DecisionTree;
 import smile.classification.KNN;
 import smile.classification.LDA;
@@ -27,11 +29,6 @@ import smile.plot.ScatterPlot;
 
 public class Main
 {
-    enum ClassType
-    {
-        HAM, SPAM
-    }
-
     public static void main(String[] args) throws Exception
     {
         final String filenameHam = "C:\\Users\\marcelovca90\\git\\anti-spam-weka-data\\2017_BASE2\\2017_BASE2_SPAM_ASSASSIN\\MI\\8\\ham";

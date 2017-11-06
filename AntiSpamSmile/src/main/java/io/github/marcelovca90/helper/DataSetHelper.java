@@ -8,7 +8,7 @@
 // and conditions stipulated in the agreement/contract under which the
 // program(s) have been supplied.
 // **********************************************************************
-package io.github.marcelovca90;
+package io.github.marcelovca90.helper;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.arturmkrtchyan.sizeof4j.SizeOf;
 
-import io.github.marcelovca90.Main.ClassType;
+import io.github.marcelovca90.common.ClassType;
 import smile.data.Attribute;
 import smile.data.AttributeDataset;
 import smile.data.NominalAttribute;
@@ -75,7 +75,8 @@ public class DataSetHelper
         }
         inputStream.close();
 
-        assert (dataSet.size() == numberOfInstances);
+        assert dataSet.size() == numberOfInstances;
+        assert dataSet.get(0).x.length == numberOfAttributes;
 
         return dataSet;
     }
@@ -89,7 +90,7 @@ public class DataSetHelper
             dataSet.forEach(mergedSet::add);
         });
 
-        assert (mergedSet.size() == totalLength.get());
+        assert mergedSet.size() == totalLength.get();
 
         return mergedSet;
     }
@@ -117,7 +118,7 @@ public class DataSetHelper
             shuffledDataSet.add(x[i], y[i]);
         }
 
-        assert (shuffledDataSet.size() == dataSet.size());
+        assert shuffledDataSet.size() == dataSet.size();
 
         return shuffledDataSet;
     }
@@ -132,7 +133,7 @@ public class DataSetHelper
         for (int i = (int) (splitPercent * dataSet.size()); i < dataSet.size(); i++)
             testSet.add(dataSet.get(i));
 
-        assert (trainSet.size() + testSet.size() == dataSet.size());
+        assert trainSet.size() + testSet.size() == dataSet.size();
 
         return Pair.of(trainSet, testSet);
     }
