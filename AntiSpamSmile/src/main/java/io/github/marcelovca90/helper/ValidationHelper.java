@@ -15,6 +15,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.distribution.TDistribution;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import smile.classification.Classifier;
@@ -24,6 +26,7 @@ import smile.validation.FMeasure;
 import smile.validation.Sensitivity;
 import smile.validation.Specificity;
 
+@SuppressWarnings ("rawtypes")
 public class ValidationHelper
 {
     private static final Map<Class<? extends Classifier>, Map<Class<? extends ClassificationMeasure>, DescriptiveStatistics>> results = new HashMap<>();
@@ -60,7 +63,14 @@ public class ValidationHelper
 
     public static void consolidate(Class<? extends Classifier> clazz)
     {
-        System.out.println(results.get(clazz).keySet().stream().map(k -> k.getSimpleName()).collect(Collectors.joining("\t")));
-        System.out.println(results.get(clazz).values().stream().map(v -> String.format("%.2f %.2f", v.getMean(), v.getStandardDeviation())).collect(Collectors.joining("\t")));
+        System.out.println(results.get(clazz).keySet().stream().map(k -> StringUtils.rightPad(k.getSimpleName(), 15)).collect(Collectors.joining("\t")));
+        System.out.println(results.get(clazz).values().stream().map(v -> String.format("%.2f ± %.2f", v.getMean(), computeConfidenceInterval(v, 0.05))).collect(Collectors.joining("\t")));
+    }
+
+    private static double computeConfidenceInterval(DescriptiveStatistics statistics, double significance)
+    {
+        TDistribution tDist = new TDistribution(statistics.getN() - 1);
+        double a = tDist.inverseCumulativeProbability(1.0 - significance / 2);
+        return a * statistics.getStandardDeviation() / Math.sqrt(statistics.getN());
     }
 }
