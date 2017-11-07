@@ -18,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Random;
@@ -65,15 +66,26 @@ public class DatasetHelper
         return metadata;
     }
 
-    public static AttributeDataset load(Triple<String, Integer, Integer> metadatum) throws Exception
+    public static AttributeDataset load(Triple<String, Integer, Integer> metadatum, boolean lookForArff) throws Exception
     {
-        AttributeDataset dataset;
-        if (Files.exists(Paths.get(metadatum.getLeft() + File.separator + "data.arff")))
+        AttributeDataset dataset = null;
+        if (lookForArff && Files.exists(Paths.get(metadatum.getLeft() + File.separator + "data.arff")))
         {
             int noFeatures = Integer.parseInt(metadatum.getLeft().substring(metadatum.getLeft().lastIndexOf(File.separator) + 1));
             ArffParser arffParser = new ArffParser();
-            arffParser.setResponseIndex(noFeatures);
-            dataset = arffParser.parse(new FileInputStream(metadatum.getLeft() + File.separator + "data.arff"));
+            boolean ableToParse = false;
+            while (!ableToParse)
+            {
+                try
+                {
+                    arffParser.setResponseIndex(noFeatures);
+                    dataset = arffParser.parse(new FileInputStream(metadatum.getLeft() + File.separator + "data.arff"));
+                }
+                catch (ParseException e)
+                {
+                    noFeatures--;
+                }
+            }
         }
         else
         {

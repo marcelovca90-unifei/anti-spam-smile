@@ -32,7 +32,7 @@ public class Main
             for (Triple<String, Integer, Integer> metadatum : DatasetHelper.loadMetadata(METADATA_PATH))
             {
                 // read data
-                AttributeDataset dataset = DatasetHelper.load(metadatum);
+                AttributeDataset dataset = DatasetHelper.load(metadatum, false);
 
                 // select features
                 int noFeaturesBefore = dataset.attributes().length;
