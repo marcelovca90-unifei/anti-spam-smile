@@ -25,8 +25,8 @@ import smile.classification.Classifier;
 import smile.validation.Accuracy;
 import smile.validation.ClassificationMeasure;
 import smile.validation.FMeasure;
-import smile.validation.Sensitivity;
-import smile.validation.Specificity;
+import smile.validation.Precision;
+import smile.validation.Recall;
 
 @SuppressWarnings("rawtypes")
 public class ValidationHelper
@@ -48,15 +48,15 @@ public class ValidationHelper
         RESULTS.get(classifier.getClass()).get(Accuracy.class).addValue(accuracy);
         assert !Double.isNaN(accuracy) : "accuracy must be a double";
 
-        double sensitivity = 100.0 * new Sensitivity().measure(truth, prediction);
-        RESULTS.get(classifier.getClass()).putIfAbsent(Sensitivity.class, new DescriptiveStatistics());
-        RESULTS.get(classifier.getClass()).get(Sensitivity.class).addValue(sensitivity);
-        assert !Double.isNaN(sensitivity) : "sensitivity must be a double";
+        double precision = 100.0 * new Precision().measure(truth, prediction);
+        RESULTS.get(classifier.getClass()).putIfAbsent(Precision.class, new DescriptiveStatistics());
+        RESULTS.get(classifier.getClass()).get(Precision.class).addValue(precision);
+        assert !Double.isNaN(precision) : "precision must be a double";
 
-        double specificity = 100.0 * new Specificity().measure(truth, prediction);
-        RESULTS.get(classifier.getClass()).putIfAbsent(Specificity.class, new DescriptiveStatistics());
-        RESULTS.get(classifier.getClass()).get(Specificity.class).addValue(specificity);
-        assert !Double.isNaN(specificity) : "specificity must be a double";
+        double recall = 100.0 * new Recall().measure(truth, prediction);
+        RESULTS.get(classifier.getClass()).putIfAbsent(Recall.class, new DescriptiveStatistics());
+        RESULTS.get(classifier.getClass()).get(Recall.class).addValue(recall);
+        assert !Double.isNaN(recall) : "recall must be a double";
 
         double fmeasure = 100.0 * new FMeasure().measure(truth, prediction);
         RESULTS.get(classifier.getClass()).putIfAbsent(FMeasure.class, new DescriptiveStatistics());
