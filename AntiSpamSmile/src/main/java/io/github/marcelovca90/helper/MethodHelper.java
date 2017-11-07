@@ -35,8 +35,6 @@ import smile.classification.RandomForest;
 import smile.classification.SVM;
 import smile.math.distance.EuclideanDistance;
 import smile.math.kernel.GaussianKernel;
-import smile.math.rbf.RadialBasisFunction;
-import smile.util.SmileUtils;
 
 @SuppressWarnings("rawtypes")
 public class MethodHelper
@@ -47,22 +45,22 @@ public class MethodHelper
     public static void init(double[][] x, int[] y)
     {
         // K-Nearest Neighbor
-        METHODS.put(KNN.class, () -> new KNN<>(x, y, new EuclideanDistance()));
+        METHODS.put(KNN.class, () -> new KNN.Trainer<>(new EuclideanDistance(), 10).train(x, y));
 
         // Linear Discriminant Analysis
-        METHODS.put(LDA.class, () -> new LDA(x, y));
+        METHODS.put(LDA.class, () -> new LDA.Trainer().train(x, y));
 
         // Fisher's Linear Discriminant
-        METHODS.put(FLD.class, () -> new FLD(x, y));
+        METHODS.put(FLD.class, () -> new FLD.Trainer().train(x, y));
 
         // Quadratic Discriminant analysis
-        METHODS.put(QDA.class, () -> new QDA(x, y));
+        METHODS.put(QDA.class, () -> new QDA.Trainer().train(x, y));
 
         // Regularized Discriminant Analysis
-        METHODS.put(RDA.class, () -> new RDA(x, y, 0.5));
+        METHODS.put(RDA.class, () -> new RDA.Trainer(1E-4).train(x, y));
 
         // Logistic Regression
-        METHODS.put(LogisticRegression.class, () -> new LogisticRegression(x, y));
+        METHODS.put(LogisticRegression.class, () -> new LogisticRegression.Trainer().train(x, y));
 
         // Maximum Entropy Classifier
         METHODS.put(Maxent.class, () ->
@@ -71,39 +69,29 @@ public class MethodHelper
             for (int i = 0; i < x.length; i++)
                 for (int j = 0; j < x[0].length; j++)
                     binx[i][j] = Math.abs(x[i][j]) < 1E-18 ? 0 : 1;
-            return new Maxent(x[0].length, binx, y);
+            return new Maxent.Trainer(x[0].length).train(binx, y);
         });
 
         // Multilayer Perceptron Neural Network
-        METHODS.put(NeuralNetwork.class, () ->
-        {
-            int i = x[0].length, o = 1, k = x.length;
-            int h = (int) ((-1 * (i + o)) + Math.sqrt(Math.pow(i + o, 2) + (4 * k)) / 2);
-            return new NeuralNetwork(ErrorFunction.LEAST_MEAN_SQUARES, x[0].length, h, h, 1);
-        });
+        METHODS.put(NeuralNetwork.class, () -> new NeuralNetwork.Trainer(ErrorFunction.CROSS_ENTROPY, x[0].length, (x[0].length + 1) / 2, 1).train(x, y));
 
         // Radial Basis Function Networks
-        METHODS.put(RBFNetwork.class, () ->
-        {
-            double[][] centers = new double[10][];
-            RadialBasisFunction[] basis = SmileUtils.learnGaussianRadialBasis(x, centers, 5.0);
-            return new RBFNetwork<>(x, y, new EuclideanDistance(), basis, centers);
-        });
+        METHODS.put(RBFNetwork.class, () -> new RBFNetwork.Trainer<>(new EuclideanDistance()).train(x, y));
 
         // Support Vector Machines
-        METHODS.put(SVM.class, () -> new SVM<>(new GaussianKernel(8.0), 5.0, smile.math.Math.max(y) + 1));
+        METHODS.put(SVM.class, () -> new SVM.Trainer<>(new GaussianKernel(8.0), 5.0, smile.math.Math.max(y) + 1).train(x, y));
 
         // Decision Trees
-        METHODS.put(DecisionTree.class, () -> new DecisionTree(x, y, 100));
+        METHODS.put(DecisionTree.class, () -> new DecisionTree.Trainer(100).train(x, y));
 
         // Random Forest
-        METHODS.put(RandomForest.class, () -> new RandomForest(x, y, 100));
+        METHODS.put(RandomForest.class, () -> new RandomForest.Trainer(100).train(x, y));
 
         // Gradient Boosted Trees
-        METHODS.put(GradientTreeBoost.class, () -> new GradientTreeBoost(x, y, 100));
+        METHODS.put(GradientTreeBoost.class, () -> new GradientTreeBoost.Trainer(100).train(x, y));
 
         // AdaBoost
-        METHODS.put(AdaBoost.class, () -> new AdaBoost(x, y, 100));
+        METHODS.put(AdaBoost.class, () -> new AdaBoost.Trainer(100).train(x, y));
     }
 
     public static Classifier forClass(Class<? extends Classifier> clazz) throws Exception
